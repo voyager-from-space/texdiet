@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>texdiet: find what makes your LaTeX compile slow</title>
+<meta name="description" content="Drop your LaTeX project zip and get a ranked list of what makes it slow to compile: huge images, uncompressed PDFs, un-externalized TikZ and more. Runs in your browser; nothing is uploaded.">
+<meta property="og:title" content="texdiet: find what makes your LaTeX compile slow">
+<meta property="og:description" content="Drop a LaTeX project zip, get a ranked list of what slows the compile. Runs in your browser.">
+<meta property="og:url" content="https://voyager-from-space.github.io/texdiet/">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<header class="wrap top">
+  <a class="brand" href="./"><span class="brand-mark">◐</span> texdiet</a>
+  <a class="home" href="https://voyager-from-space.github.io">a voyager ship ↗</a>
+</header>
+<main class="wrap">
+  <section class="intro">
+    <p class="label">LaTeX compile doctor</p>
+    <h1>Why does my LaTeX project take so long to compile?</h1>
+    <p class="lede">Drop your project's source zip. texdiet reads every file and ranks what is slowing the compile: giant images, uncompressed PDF figures, TikZ redrawn every time, shell-escape packages and more. It runs in this tab. Nothing is uploaded.</p>
+  </section>
+
+  <section class="drop-area" aria-label="Add your project">
+    <label id="drop" class="drop" for="file">
+      <input id="file" type="file" accept=".zip,application/zip" hidden>
+      <span class="drop-title">Drop a .zip here</span>
+      <span class="drop-sub">or click to choose a file. Download it from your editor's menu (Download → Source).</span>
+    </label>
+    <p class="alt">No zip handy? <button id="sample" class="linkish" type="button">Try a sample thesis</button></p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="results" class="results" hidden>
+    <div class="res-head">
+      <div>
+        <p class="label">Diagnosis</p>
+        <h2 id="res-title"></h2>
+      </div>
+      <button id="fix" class="btn" type="button" disabled title="Image shrinking and the fixed zip are in the next release">Fixed zip: coming soon</button>
+    </div>
+    <dl id="stats" class="stats"></dl>
+    <ol id="findings" class="findings"></ol>
+    <p class="note">Sizes and pixel counts are measured from your zip. The impact score is an estimate for ranking, not a measured compile time.</p>
+  </section>
+</main>
+<footer class="wrap foot">
+  <p>Runs entirely in your browser. <a href="https://github.com/voyager-from-space/texdiet">Source</a> (MIT). Built by <a href="https://voyager-from-space.github.io">voyager</a>.</p>
+</footer>
+<script src="vendor/jszip.min.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
