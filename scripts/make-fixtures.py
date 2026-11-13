@@ -161,6 +161,41 @@ def heavy():
                         + ", ".join(NASA) + ". Vector figures and text are generated test data.\n")
     write(os.path.join(ROOT, "test/heavy/heavy-thesis.zip"), f)
 
+PROOF_MAIN = r"""\documentclass[12pt,a4paper]{report}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\begin{document}
+\include{chapters/intro}
+\include{chapters/data}
+\include{chapters/results}
+\end{document}
+"""
+
+def proof():
+    """pdfLaTeX-only variant of the heavy thesis (no fontspec/minted/biber/pgfplots), for timing compiles in a WASM pdfTeX."""
+    random.seed(3)
+    coords = " -- ".join(f"({x/150:.3f},{((x*37)%101)/25:.3f})" for x in range(1500))
+    data = r"\chapter{Data}" "\n"
+    for i in range(6):
+        data += r"\begin{figure}[H]\centering" "\n" + tikz_block(i) + rf"\caption{{Sampling pass {i}.}}\end{{figure}}" "\n"
+    data += r"\begin{figure}[H]\centering\begin{tikzpicture}\draw[thin] " + coords + r";\end{tikzpicture}\caption{Telemetry.}\end{figure}" "\n"
+    intro = INTRO.replace(r"""\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/orbit_diagram.eps}
+  \caption{Orbit geometry.}
+\end{figure}
+""", "").replace(r"\ce{H2O} and \ce{CO2}", "Water and carbon dioxide").replace(r" \cite{ref1,ref2}", "")
+    results = RESULTS.replace(r"\begin{figure}[H]\centering\includegraphics[width=0.5\textwidth]{figures/missing_figure}\caption{TODO.}\end{figure}" "\n", "")
+    img = {pid: Image.open(fetch(pid)).convert("RGB") for pid in ["PIA23645", "PIA25433", "PIA21421"]}
+    f = {"main.tex": PROOF_MAIN, "chapters/intro.tex": intro, "chapters/data.tex": data, "chapters/results.tex": results,
+         "figures/jupiter_full.png": png_bytes(img["PIA23645"]), "figures/ring_closeup.png": png_bytes(img["PIA25433"]),
+         "figures/surface_scan.png": png_bytes(img["PIA21421"]),
+         "figures/crater_field.jpg": open(fetch("PIA23122"), "rb").read(), "figures/dust_storm.jpg": open(fetch("PIA19048"), "rb").read(),
+         "figures/spectra_plot.pdf": uncompressed_pdf(120000),
+         "SOURCES.txt": "Figures are public-domain NASA/JPL images from images-assets.nasa.gov: PIA23645, PIA25433, PIA21421, PIA23122, PIA19048. Vector figures and text are generated test data.\n"}
+    write(os.path.join(ROOT, "test/heavy/proof-thesis.zip"), f)
+
 if __name__ == "__main__":
     which = sys.argv[1:] or ["small", "heavy"]
-    for w in which: {"small": small, "heavy": heavy}[w]()
+    for w in which: {"small": small, "heavy": heavy, "proof": proof}[w]()

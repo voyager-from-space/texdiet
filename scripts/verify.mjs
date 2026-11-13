@@ -115,6 +115,8 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
   ok(await p.isVisible("#drop"), `${tag}: drop zone visible`);
   ok(await p.$eval('a[href="https://voyager-from-space.github.io"]', (a) => !!a.offsetParent), `${tag}: link back to voyager portfolio visible`);
   ok(!(await p.isVisible("#results")), `${tag}: results panel hidden before any zip`);
+  const caps = await p.evaluate(() => [...document.querySelectorAll("body *")].filter((e) => e.textContent.trim() && getComputedStyle(e).textTransform === "uppercase").length);
+  ok(caps === 0, `${tag}: no all-caps text-transform labels (${caps} found)`);
   ok(!/overleaf/i.test(await p.content()), `${tag}: brand name of the online editor never appears on the page`);
   const html = (await p.content()).toLowerCase();
   ok(deny.length > 0 && deny.every((d) => !html.includes(d)), `${tag}: 0 denylist hits in rendered html (${deny.length} patterns)`);
@@ -122,9 +124,10 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
 
   await upload(p, SMALL);
   let f = await findings(p);
+  ok(!(await p.textContent("#results")).includes("\u00b7"), `${tag}: no "A · B" dot pattern in the results`);
   ok(f.length >= 10, `${tag}: small fixture renders ${f.length} findings (>= 10)`);
   ok(f.every((x, i) => i === 0 || f[i - 1].score >= x.score), `${tag}: findings ranked by score, highest first`);
-  ok(f.filter((x) => x.sev === "high").every((x) => /\.tex:\d+/.test(x.where)), `${tag}: every high finding points to file:line`);
+  ok(f.filter((x) => x.sev === "High").every((x) => /\.tex:\d+/.test(x.where)), `${tag}: every high finding points to file:line`);
   ok(f.some((x) => x.rule === "tikz-not-externalized" && x.title.startsWith("7 TikZ pictures")), `${tag}: counts 7 un-externalized TikZ pictures`);
   ok(f.some((x) => x.rule === "oversized-raster" && x.measured.includes("2068×1172 px")), `${tag}: reads 2068×1172 px from the PNG header`);
   ok(f.some((x) => x.rule === "missing-figure" && x.where.includes("chapters/results.tex:6")), `${tag}: flags the missing figure at chapters/results.tex:6`);

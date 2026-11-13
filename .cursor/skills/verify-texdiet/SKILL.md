@@ -24,6 +24,7 @@ Stable handles in `site/index.html`:
 - `#file` hidden file input. Use `page.setInputFiles('#file', path)`.
 - `#drop` drop zone. Dispatch a `drop` event with a `DataTransfer` built in the page.
 - `#sample` loads `site/sample/sample-thesis.zip`.
+- Copy is sentence case; verify fails on any uppercase text-transform or a middle-dot separator.
 - `#results` (hidden until a zip is read), `#res-title`, `#stats`, `#findings .finding` with `data-rule`, `.sev`, `.score`, `.measured`, `.where`.
 - `#status` shows progress and errors.
 - `#fix` builds the fixed zip; `#fixed`, `#bytes`, `#changes`, `#download` show and download it. Downloads are saved to `test/out/`.
