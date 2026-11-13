@@ -24,13 +24,16 @@ let fails = 0, passes = 0;
 const ok = (cond, msg) => { console.log(`${cond ? "PASS" : "FAIL"}  ${msg}`); cond ? passes++ : fails++; };
 const browser = await chromium.launch();
 
+// Let lazily loaded fonts finish before a reload, so the reload does not abort them (net::ERR_ABORTED).
+async function settle(p) { await p.evaluate(() => document.fonts.ready); await p.reload({ waitUntil: "networkidle" }); }
+
 async function open(viewport, tag) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: viewport.width < 500 ? 2 : 1 });
   const p = await ctx.newPage();
   const errors = [], external = [];
   p.on("console", (m) => { if (["error", "warning"].includes(m.type())) errors.push(`${m.type()}: ${m.text()}`); });
   p.on("pageerror", (e) => errors.push("pageerror: " + e.message));
-  p.on("requestfailed", (r) => errors.push("requestfailed: " + r.url()));
+  p.on("requestfailed", (r) => errors.push("requestfailed: " + r.url() + " (" + (r.failure()?.errorText || "?") + ")"));
   p.on("request", (r) => { if (!r.url().startsWith(BASE) && !r.url().startsWith("data:")) external.push(r.url()); });
   await p.goto(`${BASE}?cb=${Date.now()}`, { waitUntil: "networkidle" });
   await p.evaluate(() => document.fonts.ready);
@@ -136,7 +139,7 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `${tag}: no horizontal overflow`);
 
   if (existsSync(HEAVY)) {
-    await p.reload({ waitUntil: "networkidle" });
+    await settle(p);
     await upload(p, HEAVY);
     f = await findings(p);
     ok(f[0]?.rule === "oversized-raster" && f[0].measured.startsWith("15.6 MB, 3400×3400 px"), `${tag}: heavy thesis top finding is the 15.6 MB 3400×3400 PNG`);
@@ -150,7 +153,8 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
     if (tag === "desktop") await checkFixed(p, tag, HEAVY, "heavy");
   } else console.log("SKIP  heavy fixture missing; run: python3 scripts/make-fixtures.py heavy");
 
-  if (tag === "mobile" || !existsSync(HEAVY)) { await p.reload({ waitUntil: "networkidle" }); await upload(p, SMALL); await checkFixed(p, tag, SMALL, "small"); }
+  if (tag === "mobile" || !existsSync(HEAVY)) { await settle(p); await upload(p, SMALL); await checkFixed(p, tag, SMALL, "small"); }
+  await p.evaluate(() => document.fonts.ready);
   ok(s.errors.length === 0, `${tag}: no console errors or failed requests${s.errors.length ? " -> " + s.errors.join(" | ") : ""}`);
   ok(s.external.length === 0, `${tag}: no requests leave the site${s.external.length ? " -> " + s.external.join(" ") : ""}`);
   await s.ctx.close();
@@ -167,15 +171,16 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
   await s.p.waitForSelector("#results:not([hidden]) .finding");
   ok((await s.p.textContent("#res-title")).includes("dropped.zip"), "drag and drop a zip renders findings");
 
-  await s.p.reload({ waitUntil: "networkidle" });
+  await settle(s.p);
   await s.p.click("#sample");
   await s.p.waitForSelector("#results:not([hidden]) .finding");
   ok((await findings(s.p)).length >= 10, "sample thesis button renders findings");
 
-  await s.p.reload({ waitUntil: "networkidle" });
+  await settle(s.p);
   await s.p.setInputFiles("#file", { name: "notes.zip", mimeType: "application/zip", buffer: Buffer.from("not a zip") });
   await s.p.waitForFunction(() => document.getElementById("status").textContent.startsWith("Could not read"));
   ok(!(await s.p.isVisible("#results")), "a broken zip shows an error and no results");
+  await s.p.evaluate(() => document.fonts.ready);
   ok(s.errors.length === 0, `drag/sample/error flows: no console errors${s.errors.length ? " -> " + s.errors.join(" | ") : ""}`);
   await s.ctx.close();
 }
