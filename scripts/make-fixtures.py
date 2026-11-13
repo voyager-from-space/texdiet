@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the test zips.
 
-small: test/fixtures/small-thesis.zip, committed, a few KB, used by verify.mjs.
+small: test/fixtures/small-thesis.zip, committed (~2 MB), used by verify.mjs and as the in-app sample.
 heavy: test/heavy/heavy-thesis.zip, not committed, a thesis layout whose figures
 are public-domain NASA/JPL images (images-assets.nasa.gov) saved the way students
 often export them: full-resolution PNGs and camera-size JPGs.
@@ -130,17 +130,18 @@ def common(nbib):
             "data/telemetry.dat": "x y\n" + "".join(f"{i} {(i*13)%97}\n" for i in range(20000))}
 
 def small():
+    """A light but real-looking project: same tex, NASA photos at moderate sizes, so it doubles as the in-app sample."""
     random.seed(1)
     f = common(40)
-    f["figures/jupiter_full.png"] = png_bytes(Image.new("RGB", (4000, 3000), (40, 60, 90)))
-    f["figures/surface_scan.png"] = png_bytes(Image.new("RGB", (640, 480), (90, 60, 40)))
-    f["figures/ring_closeup.png"] = png_bytes(Image.new("RGB", (3000, 3000), (10, 10, 10)))
-    b = io.BytesIO(); Image.new("RGB", (5000, 3500), (120, 80, 50)).save(b, "JPEG", quality=95)
-    f["figures/crater_field.jpg"] = b.getvalue()
-    f["figures/dust_storm.jpg"] = f["figures/crater_field.jpg"]
+    f["figures/jupiter_full.png"] = png_bytes(Image.open(fetch("PIA24546")).convert("RGB"))
+    f["figures/ring_closeup.png"] = png_bytes(Image.open(fetch("PIA19048")).convert("RGB").resize((1150, 850)))
+    f["figures/surface_scan.png"] = png_bytes(Image.open(fetch("PIA17171")).convert("RGB").resize((419, 479)))
+    f["figures/crater_field.jpg"] = open(fetch("PIA23122"), "rb").read()
+    f["figures/dust_storm.jpg"] = open(fetch("PIA24546"), "rb").read()
     f["figures/orbit_diagram.eps"] = eps(200)
-    f["figures/spectra_plot.pdf"] = uncompressed_pdf(300)
+    f["figures/spectra_plot.pdf"] = uncompressed_pdf(8000)
     f["figures/unused_draft.png"] = png_bytes(Image.new("RGB", (800, 600), (0, 0, 0)))
+    f["SOURCES.txt"] = "Figures are public-domain NASA/JPL images from images-assets.nasa.gov: PIA24546, PIA19048, PIA17171, PIA23122. Vector figures and text are generated test data.\n"
     write(os.path.join(ROOT, "test/fixtures/small-thesis.zip"), f)
 
 def heavy():

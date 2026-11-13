@@ -3,12 +3,18 @@
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
 
 const root = new URL("..", import.meta.url).pathname;
 const PORT = 4174, LIVE = process.env.BASE_URL, BASE = LIVE || `http://127.0.0.1:${PORT}/`;
 const SHOTS = root + (process.env.SHOTS || "screenshots/local");
 const SMALL = root + "test/fixtures/small-thesis.zip", HEAVY = root + "test/heavy/heavy-thesis.zip";
 mkdirSync(SHOTS, { recursive: true });
+const JSZip = createRequire(import.meta.url)("jszip");
+const { analyze, normalizePaths, imageSize } = await import(root + "site/rules.js");
+const DL = root + "test/out";
+mkdirSync(DL, { recursive: true });
 const server = LIVE ? { kill() {} } : spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1", "--directory", root + "site"], { stdio: "ignore" });
 await new Promise((r) => setTimeout(r, 800));
 
@@ -41,6 +47,67 @@ async function upload(p, file) {
   await p.waitForSelector("#results:not([hidden]) .finding");
 }
 
+async function readZipNode(path) {
+  const z = await JSZip.loadAsync(readFileSync(path));
+  const files = [];
+  for (const e of Object.values(z.files)) if (!e.dir) { const b = await e.async("uint8array"); files.push({ path: e.name, size: b.length, bytes: b }); }
+  return normalizePaths(files);
+}
+
+async function checkFixed(p, tag, input, label) {
+  const t = `${tag} ${label}`;
+  await p.click("#fix");
+  await p.waitForSelector("#fixed:not([hidden]) .change", { timeout: 120000 });
+  const [dl] = await Promise.all([p.waitForEvent("download"), p.click("#download")]);
+  const inName = input.split("/").pop();
+  ok(dl.suggestedFilename() === inName.replace(/\.zip$/, "-texdiet.zip"), `${t}: download is named ${dl.suggestedFilename()}`);
+  const out = `${DL}/${tag}-${dl.suggestedFilename()}`;
+  await dl.saveAs(out);
+  const inSize = readFileSync(input).length, outSize = readFileSync(out).length;
+  ok(outSize < inSize, `${t}: fixed zip is smaller (${inSize} -> ${outSize} bytes, -${Math.round((1 - outSize / inSize) * 100)}%)`);
+  const before = await readZipNode(input), after = await readZipNode(out);
+  const byPath = new Map(after.map((f) => [f.path, f]));
+  const src = before.filter((f) => /\.(tex|bib|cls|sty)$/i.test(f.path));
+  ok(src.every((f) => byPath.has(f.path)), `${t}: all ${src.length} .tex/.bib/.cls/.sty files still present`);
+  const dec = new TextDecoder();
+  const kept = src.every((f) => {
+    const now = dec.decode(byPath.get(f.path).bytes);
+    return dec.decode(f.bytes).split("\n").filter((l) => l.trim()).every((l) => now.includes(l) || now.includes(`% texdiet: figure replaced by a smaller copy. Original line: ${l.trim()}`));
+  });
+  ok(kept, `${t}: every original non-empty source line is still in the fixed files (only additions, comments, or a figure path kept in a texdiet comment)`);
+  ok(byPath.has("TEXDIET-CHANGES.txt"), `${t}: zip carries TEXDIET-CHANGES.txt`);
+  const main = dec.decode(byPath.get("main.tex").bytes);
+  ok(main.includes("% texdiet:") && main.includes("\\tikzexternalize[prefix=tikz-cache/]") && byPath.has("tikz-cache/README.txt"), `${t}: main.tex gets marked \\tikzexternalize and tikz-cache/ exists`);
+  const imgs = after.filter((f) => /\.(png|jpe?g)$/i.test(f.path));
+  const decoded = [];
+  for (const f of imgs) decoded.push(await p.evaluate(async (b64) => {
+    try { const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))])); return [bmp.width, bmp.height]; } catch { return null; }
+  }, Buffer.from(f.bytes).toString("base64")));
+  ok(decoded.every(Boolean), `${t}: all ${imgs.length} images in the fixed zip decode in the browser`);
+  const r0 = analyze({ files: before }), r1 = analyze({ files: after });
+  const big0 = r0.findings.filter((f) => f.rule === "oversized-raster");
+  const reduced = big0.every((f) => {
+    const ref = r1.refs.find((r) => r.file === f.where[0].file && r.line > 0 && r.path && r.path.replace(/\.(png|jpe?g)$/i, "") === f.path.replace(/\.(png|jpe?g)$/i, ""));
+    if (!ref) return false;
+    const d0 = imageSize(before.find((x) => x.path === f.path).bytes), d1 = imageSize(byPath.get(ref.path).bytes);
+    return Math.max(d1.w, d1.h) <= 2000 && d1.w < d0.w && d1.h < d0.h;
+  });
+  ok(big0.length > 0 && reduced, `${t}: all ${big0.length} oversized images now <= 2000 px on the long side and still referenced`);
+  ok(r1.findings.filter((f) => f.rule === "missing-figure").length === r0.findings.filter((f) => f.rule === "missing-figure").length, `${t}: no \\includegraphics broken by the renames`);
+  const pdf = byPath.get("figures/spectra_plot.pdf");
+  let pdfOk = null;
+  try { execFileSync("pdftoppm", ["-v"], { stdio: "ignore" }); pdfOk = true; } catch { pdfOk = null; }
+  if (pdfOk && pdf && r0.findings.some((f) => f.rule === "uncompressed-pdf")) {
+    const tmp = `${DL}/${tag}-${label}-spectra.pdf`;
+    (await import("node:fs")).writeFileSync(tmp, pdf.bytes);
+    try { execFileSync("pdftoppm", ["-r", "20", "-png", "-singlefile", tmp, tmp.replace(/\.pdf$/, "")], { stdio: "pipe" }); } catch { pdfOk = false; }
+    ok(pdfOk && pdf.size < before.find((x) => x.path === "figures/spectra_plot.pdf").size, `${t}: recompressed PDF figure is smaller and renders with pdftoppm`);
+  }
+  await p.locator("#fixed").scrollIntoViewIfNeeded();
+  await p.screenshot({ path: `${SHOTS}/${tag}-${label}-fixed.png` });
+  return { inSize, outSize };
+}
+
 for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 390, height: 844 }, "mobile"]]) {
   const s = await open(vp, tag);
   const { p } = s;
@@ -59,9 +126,9 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
   ok(f.every((x, i) => i === 0 || f[i - 1].score >= x.score), `${tag}: findings ranked by score, highest first`);
   ok(f.filter((x) => x.sev === "high").every((x) => /\.tex:\d+/.test(x.where)), `${tag}: every high finding points to file:line`);
   ok(f.some((x) => x.rule === "tikz-not-externalized" && x.title.startsWith("7 TikZ pictures")), `${tag}: counts 7 un-externalized TikZ pictures`);
-  ok(f.some((x) => x.rule === "oversized-raster" && x.measured.includes("4000×3000 px")), `${tag}: reads 4000×3000 px from the PNG header`);
+  ok(f.some((x) => x.rule === "oversized-raster" && x.measured.includes("2068×1172 px")), `${tag}: reads 2068×1172 px from the PNG header`);
   ok(f.some((x) => x.rule === "missing-figure" && x.where.includes("chapters/results.tex:6")), `${tag}: flags the missing figure at chapters/results.tex:6`);
-  ok(await p.$eval("#fix", (b) => b.disabled), `${tag}: fixed-zip button is present and disabled (next slice)`);
+  ok(await p.$eval("#fix", (b) => !b.disabled), `${tag}: build-fixed-zip button enabled after diagnosis`);
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `${tag}: no horizontal overflow`);
 
   if (existsSync(HEAVY)) {
@@ -76,8 +143,10 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
     await p.locator("#results").scrollIntoViewIfNeeded();
     await p.screenshot({ path: `${SHOTS}/${tag}-heavy-results.png` });
     await p.screenshot({ path: `${SHOTS}/${tag}-heavy-full.png`, fullPage: true });
+    if (tag === "desktop") await checkFixed(p, tag, HEAVY, "heavy");
   } else console.log("SKIP  heavy fixture missing; run: python3 scripts/make-fixtures.py heavy");
 
+  if (tag === "mobile" || !existsSync(HEAVY)) { await p.reload({ waitUntil: "networkidle" }); await upload(p, SMALL); await checkFixed(p, tag, SMALL, "small"); }
   ok(s.errors.length === 0, `${tag}: no console errors or failed requests${s.errors.length ? " -> " + s.errors.join(" | ") : ""}`);
   ok(s.external.length === 0, `${tag}: no requests leave the site${s.external.length ? " -> " + s.external.join(" ") : ""}`);
   await s.ctx.close();

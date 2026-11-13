@@ -9,7 +9,7 @@ texdiet is a static page. The only surface is the browser. There is no server co
 
 ## Launch
 
-- Fixtures (once, or after editing `scripts/make-fixtures.py`): `python3 scripts/make-fixtures.py`. Writes `test/fixtures/small-thesis.zip` (committed) and `test/heavy/heavy-thesis.zip` (gitignored, downloads 8 NASA images on first run).
+- Fixtures (once, or after editing `scripts/make-fixtures.py`): `python3 scripts/make-fixtures.py`. Writes `test/fixtures/small-thesis.zip` (committed, ~4 MB, also the in-app sample) and `test/heavy/heavy-thesis.zip` (gitignored, downloads 8 NASA images on first run).
 - Deps: `npm install` (Playwright 1.65.0; Chromium is already cached on the box).
 - `node scripts/verify.mjs` starts its own `python3 -m http.server 4174` on 127.0.0.1 serving `site/`, waits 800 ms, and kills it at the end. Ready means the page title contains "texdiet".
 - Live: `BASE_URL=https://voyager-from-space.github.io/texdiet/ SHOTS=screenshots/live node scripts/verify.mjs`. No server is started.
@@ -26,7 +26,7 @@ Stable handles in `site/index.html`:
 - `#sample` loads `site/sample/sample-thesis.zip`.
 - `#results` (hidden until a zip is read), `#res-title`, `#stats`, `#findings .finding` with `data-rule`, `.sev`, `.score`, `.measured`, `.where`.
 - `#status` shows progress and errors.
-- `#fix` is the fixed-zip button. Disabled until slice 2.
+- `#fix` builds the fixed zip; `#fixed`, `#bytes`, `#changes`, `#download` show and download it. Downloads are saved to `test/out/`.
 
 ## Evidence
 

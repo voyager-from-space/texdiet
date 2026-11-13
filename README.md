@@ -30,7 +30,17 @@ Everything runs in your browser. The zip is read with JSZip in the tab and never
 
 Findings are ranked by an estimated impact score. The score is a ranking aid, not a measured compile time.
 
-Coming next: one-click fixed zip (images downscaled, slow patterns commented out) with a before/after size list.
+## The fixed zip
+
+Click **Build fixed zip** after the diagnosis and download `<name>-texdiet.zip`. In the browser, texdiet:
+
+- downscales oversized figures to at most 2000 px on the long side (about 6.7 in at 300 dpi). Photos become JPEG at quality 85. A PNG stays PNG if it has transparency or ends up under 300 KB. A file is only replaced when the new copy is smaller.
+- adds Flate compression to uncompressed PDF figures (simple PDFs only; anything else is left alone).
+- adds `\tikzexternalize` with a `tikz-cache/` folder. It only switches on when shell-escape is on, so a compile without it behaves as before.
+- leaves a `% texdiet:` comment above every edit, flags minted, EPS, SVG and big pgfplots data, and comments out debug tracing.
+- never deletes content. When a figure path changes from `.png` to `.jpg`, the original line is kept in a `% texdiet:` comment. A `TEXDIET-CHANGES.txt` in the zip lists every change with before/after bytes.
+
+Compile speed has not been measured yet. That proof comes next.
 
 ## Develop
 

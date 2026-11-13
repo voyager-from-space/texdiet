@@ -40,10 +40,26 @@
         <p class="label">Diagnosis</p>
         <h2 id="res-title"></h2>
       </div>
-      <button id="fix" class="btn" type="button" disabled title="Image shrinking and the fixed zip are in the next release">Fixed zip: coming soon</button>
+      <button id="fix" class="btn" type="button">Build fixed zip</button>
     </div>
     <dl id="stats" class="stats"></dl>
     <ol id="findings" class="findings"></ol>
+    <section id="fixed" class="fixed" hidden aria-labelledby="fixed-title">
+      <div class="res-head">
+        <div>
+          <p class="label">Fixed zip</p>
+          <h2 id="fixed-title"></h2>
+        </div>
+        <a id="download" class="btn" href="#" download>Download</a>
+      </div>
+      <table class="bytes">
+        <thead><tr><th scope="col"></th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
+        <tbody id="bytes"></tbody>
+      </table>
+      <h3 class="list-h">What changed</h3>
+      <ol id="changes" class="changes"></ol>
+      <p class="note">Images are downscaled to at most 2000 px on the long side (about 6.7 in at 300 dpi). Edits in .tex files are marked with <code>% texdiet:</code> comments. Nothing is deleted. Compile speed has not been measured yet.</p>
+    </section>
     <p class="note">Sizes and pixel counts are measured from your zip. The impact score is an estimate for ranking, not a measured compile time.</p>
   </section>
 </main>
