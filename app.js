@@ -1,4 +1,8 @@
 import { analyze, normalizePaths, fmtBytes } from './rules.js';
+import { buildFix, changeLog } from './fix.js';
+
+let current = null; // { name, size, project, report }
+let downloadUrl = null;
 
 const $ = (id) => document.getElementById(id);
 const status = (msg) => { $('status').textContent = msg; };
@@ -58,6 +62,9 @@ async function handle(name, buf) {
   try {
     const project = await readZip(buf);
     const report = analyze(project);
+    current = { name, size: buf.byteLength, project, report };
+    $('fixed').hidden = true;
+    $('fix').disabled = report.findings.length === 0;
     render(name, report);
     status(`Read ${project.files.length} files in ${Math.round(performance.now() - t0)} ms, locally.`);
   } catch (err) {
@@ -82,4 +89,57 @@ $('sample').addEventListener('click', async () => {
   status('Loading the sample thesis…');
   const r = await fetch('sample/sample-thesis.zip');
   handle('sample-thesis.zip', await r.arrayBuffer());
+});
+
+const total = (files) => files.reduce((n, f) => n + f.size, 0);
+const figBytes = (files) => total(files.filter((f) => /\.(png|jpe?g|pdf|eps)$/i.test(f.path)));
+const pct = (a, b) => (a ? `${b <= a ? '−' : '+'}${Math.abs(Math.round((1 - b / a) * 100))}%` : '');
+
+$('fix').addEventListener('click', async () => {
+  if (!current) return;
+  const { name, size, project, report } = current;
+  $('fix').disabled = true;
+  const t0 = performance.now();
+  try {
+    const fixed = await buildFix(project, report, status);
+    status('Packing the zip…');
+    const zip = new window.JSZip();
+    for (const f of fixed.files) zip.file(f.path, f.bytes);
+    zip.file('TEXDIET-CHANGES.txt', changeLog(name, fixed.changes, total(project.files), total(fixed.files)));
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+    const outName = name.replace(/\.zip$/i, '') + '-texdiet.zip';
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    downloadUrl = URL.createObjectURL(blob);
+    const a = $('download');
+    a.href = downloadUrl;
+    a.download = outName;
+    a.textContent = `Download ${outName} (${fmtBytes(blob.size)})`;
+    $('fixed-title').textContent = `${fixed.changes.length} changes, ${fmtBytes(size)} → ${fmtBytes(blob.size)}`;
+    const rows = [
+      ['zip file', size, blob.size],
+      ['project files', total(project.files), total(fixed.files)],
+      ['figures', figBytes(project.files), figBytes(fixed.files)],
+    ];
+    $('bytes').replaceChildren(...rows.map(([k, b, x]) => {
+      const tr = el('tr');
+      tr.append(el('th', null, k), el('td', null, fmtBytes(b)), el('td', null, fmtBytes(x)), el('td', 'delta', pct(b, x)));
+      tr.querySelector('th').scope = 'row';
+      return tr;
+    }));
+    $('changes').replaceChildren(...fixed.changes.map((c) => {
+      const li = el('li', `change ${c.kind}`);
+      li.dataset.kind = c.kind;
+      const head = el('p', 'c-head');
+      head.append(el('span', 'c-file', c.file), el('span', 'c-bytes', c.kind === 'tex' || c.kind === 'added' ? `${c.kind === 'added' ? 'new file' : 'edited'}` : `${fmtBytes(c.before)} → ${fmtBytes(c.after)}`));
+      li.append(head, el('p', 'c-note', c.note));
+      return li;
+    }));
+    $('fixed').hidden = false;
+    $('fixed').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    status(`Built ${outName} in ${Math.round(performance.now() - t0)} ms, locally.`);
+  } catch (err) {
+    status(`Could not build the fixed zip (${err.message}).`);
+  } finally {
+    $('fix').disabled = false;
+  }
 });

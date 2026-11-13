@@ -105,7 +105,7 @@ const RULES = [
       if (f.size < 1 * MB && mp < 4.2) continue;
       const score = clamp(25 + (f.size / MB) * (isPng ? 5 : 3) + mp * 1.5);
       out.push({
-        rule: 'oversized-raster', score,
+        rule: 'oversized-raster', path: f.path, score,
         title: `Huge ${isPng ? 'PNG' : 'JPEG'} figure: ${f.path}`,
         measured: `${fmtBytes(f.size)}${dim ? `, ${dim.w}×${dim.h} px (${mp.toFixed(1)} MP)` : ''}`,
         fix: `Downscale to about 2000 px on the long edge${isPng ? ' and save photos as JPEG; PNGs are decompressed and re-encoded on every compile' : ''}.`,
@@ -121,7 +121,7 @@ const RULES = [
       const { streams, filtered } = pdfStreams(f.bytes);
       const raw = streams - filtered;
       if (raw > 0 && f.size > 200 * 1024) {
-        out.push({ rule: 'uncompressed-pdf', score: clamp(40 + (f.size / MB) * 6),
+        out.push({ rule: 'uncompressed-pdf', path: f.path, score: clamp(40 + (f.size / MB) * 6),
           title: `Uncompressed PDF figure: ${f.path}`,
           measured: `${fmtBytes(f.size)}, ${raw} of ${streams} streams have no compression filter`,
           fix: 'Re-export the figure with compression, or rasterize very dense plots to a 300 dpi PNG/JPEG.',
@@ -272,6 +272,7 @@ export function analyze(project) {
   const sum = (re) => project.files.filter((f) => re.test(f.path)).reduce((n, f) => n + f.size, 0);
   return {
     main,
+    refs: refs.map(({ name, file, line, target }) => ({ name, file, line, path: target?.path ?? null })),
     stats: { files: project.files.length, bytes: sum(/./), imageBytes: sum(/\.(png|jpe?g|pdf|eps|svg)$/i), texFiles: project.files.filter((f) => TEXLIKE.test(f.path)).length },
     findings,
   };
