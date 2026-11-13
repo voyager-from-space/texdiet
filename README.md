@@ -2,7 +2,7 @@
 
 Find what makes your LaTeX project slow to compile. Drop the project's source zip in the page and get a ranked list of the causes, each with the file and line and the size measured from your files.
 
-**Use it:** https://voyager-from-space.github.io/texdiet/
+**Use it:** https://texdiet.vercel.app (mirror: https://voyager-from-space.github.io/texdiet/)
 
 Free online LaTeX editors cap compile time on their free plans, often at a few seconds. A thesis with a few full-resolution PNGs or a dozen TikZ figures can blow past that. texdiet tells you which files and lines to fix first.
 

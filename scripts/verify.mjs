@@ -115,6 +115,7 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
   ok(await p.isVisible("#drop"), `${tag}: drop zone visible`);
   ok(await p.$eval('a[href="https://voyager-from-space.github.io"]', (a) => !!a.offsetParent), `${tag}: link back to voyager portfolio visible`);
   ok(!(await p.isVisible("#results")), `${tag}: results panel hidden before any zip`);
+  ok(await p.$eval('link[rel="canonical"]', (l) => l.href) === "https://texdiet.vercel.app/" && await p.$eval('meta[property="og:url"]', (m) => m.content) === "https://texdiet.vercel.app/", `${tag}: canonical and og:url point at https://texdiet.vercel.app/`);
   const caps = await p.evaluate(() => [...document.querySelectorAll("body *")].filter((e) => e.textContent.trim() && getComputedStyle(e).textTransform === "uppercase").length);
   ok(caps === 0, `${tag}: no all-caps text-transform labels (${caps} found)`);
   ok(!/overleaf/i.test(await p.content()), `${tag}: brand name of the online editor never appears on the page`);
