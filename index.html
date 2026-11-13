@@ -14,12 +14,11 @@
 <body>
 <div class="sky" aria-hidden="true"></div>
 <header class="wrap top">
-  <a class="brand" href="./"><span class="brand-mark">◐</span> texdiet</a>
-  <a class="home" href="https://voyager-from-space.github.io">a voyager ship ↗</a>
+  <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">◐</span> texdiet</a>
+  <a class="home" href="https://voyager-from-space.github.io">More from voyager</a>
 </header>
 <main class="wrap">
   <section class="intro">
-    <p class="label">LaTeX compile doctor</p>
     <h1>Why does my LaTeX project take so long to compile?</h1>
     <p class="lede">Drop your project's source zip. texdiet reads every file and ranks what is slowing the compile: giant images, uncompressed PDF figures, TikZ redrawn every time, shell-escape packages and more. It runs in this tab. Nothing is uploaded.</p>
   </section>
@@ -28,7 +27,7 @@
     <label id="drop" class="drop" for="file">
       <input id="file" type="file" accept=".zip,application/zip" hidden>
       <span class="drop-title">Drop a .zip here</span>
-      <span class="drop-sub">or click to choose a file. Download it from your editor's menu (Download → Source).</span>
+      <span class="drop-sub">or click to choose one. Most online editors can download the project source as a zip.</span>
     </label>
     <p class="alt">No zip handy? <button id="sample" class="linkish" type="button">Try a sample thesis</button></p>
     <p id="status" class="status" role="status" aria-live="polite"></p>
@@ -37,7 +36,6 @@
   <section id="results" class="results" hidden>
     <div class="res-head">
       <div>
-        <p class="label">Diagnosis</p>
         <h2 id="res-title"></h2>
       </div>
       <button id="fix" class="btn" type="button">Build fixed zip</button>
@@ -47,13 +45,12 @@
     <section id="fixed" class="fixed" hidden aria-labelledby="fixed-title">
       <div class="res-head">
         <div>
-          <p class="label">Fixed zip</p>
           <h2 id="fixed-title"></h2>
         </div>
         <a id="download" class="btn" href="#" download>Download</a>
       </div>
       <table class="bytes">
-        <thead><tr><th scope="col"></th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
+        <thead><tr><th scope="col"><span class="sr">Size</span></th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
         <tbody id="bytes"></tbody>
       </table>
       <h3 class="list-h">What changed</h3>

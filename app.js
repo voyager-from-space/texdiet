@@ -33,7 +33,7 @@ function render(name, report) {
     : `Nothing slow found in ${name}`;
   const dl = $('stats');
   dl.replaceChildren();
-  for (const [k, v] of [['files', stats.files], ['total size', fmtBytes(stats.bytes)], ['figures', fmtBytes(stats.imageBytes)], ['main file', main || 'not found']]) {
+  for (const [k, v] of [['Files', stats.files], ['Total size', fmtBytes(stats.bytes)], ['Figures', fmtBytes(stats.imageBytes)], ['Main file', main || 'not found']]) {
     const d = el('div'); d.append(el('dt', null, k), el('dd', null, String(v))); dl.append(d);
   }
   const ol = $('findings');
@@ -42,12 +42,12 @@ function render(name, report) {
     const li = el('li', `finding ${f.severity}`);
     li.dataset.rule = f.rule;
     const head = el('div', 'f-head');
-    head.append(el('span', 'rank', String(i + 1).padStart(2, '0')), el('span', `sev ${f.severity}`, f.severity), el('span', 'score', `est. impact ${f.score}`));
+    head.append(el('span', 'rank', String(i + 1).padStart(2, '0')), el('span', `sev ${f.severity}`, f.severity[0].toUpperCase() + f.severity.slice(1)), el('span', 'score', `Est. impact ${f.score}`));
     li.append(head, el('h3', null, f.title), el('p', 'measured', f.measured), el('p', 'fix', f.fix));
     if (f.where.length) {
       const w = el('p', 'where');
       const shown = f.where.slice(0, 6).map((x) => `${x.file}:${x.line}`);
-      w.textContent = shown.join('  ·  ') + (f.where.length > 6 ? `  ·  +${f.where.length - 6} more` : '');
+      w.textContent = shown.join(', ') + (f.where.length > 6 ? `, and ${f.where.length - 6} more` : '');
       li.append(w);
     }
     ol.append(li);
@@ -116,9 +116,9 @@ $('fix').addEventListener('click', async () => {
     a.textContent = `Download ${outName} (${fmtBytes(blob.size)})`;
     $('fixed-title').textContent = `${fixed.changes.length} changes, ${fmtBytes(size)} → ${fmtBytes(blob.size)}`;
     const rows = [
-      ['zip file', size, blob.size],
-      ['project files', total(project.files), total(fixed.files)],
-      ['figures', figBytes(project.files), figBytes(fixed.files)],
+      ['Zip file', size, blob.size],
+      ['Project files', total(project.files), total(fixed.files)],
+      ['Figures', figBytes(project.files), figBytes(fixed.files)],
     ];
     $('bytes').replaceChildren(...rows.map(([k, b, x]) => {
       const tr = el('tr');
@@ -130,8 +130,8 @@ $('fix').addEventListener('click', async () => {
       const li = el('li', `change ${c.kind}`);
       li.dataset.kind = c.kind;
       const head = el('p', 'c-head');
-      head.append(el('span', 'c-file', c.file), el('span', 'c-bytes', c.kind === 'tex' || c.kind === 'added' ? `${c.kind === 'added' ? 'new file' : 'edited'}` : `${fmtBytes(c.before)} → ${fmtBytes(c.after)}`));
-      li.append(head, el('p', 'c-note', c.note));
+      head.append(el('span', 'c-file', c.file), el('span', 'c-bytes', c.kind === 'tex' || c.kind === 'added' ? `${c.kind === 'added' ? 'New file' : 'Edited'}` : `${fmtBytes(c.before)} → ${fmtBytes(c.after)}`));
+      li.append(head, el('p', 'c-note', c.note[0].toUpperCase() + c.note.slice(1)));
       return li;
     }));
     $('fixed').hidden = false;
