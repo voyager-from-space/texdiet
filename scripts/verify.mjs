@@ -57,6 +57,39 @@ async function readZipNode(path) {
   return normalizePaths(files);
 }
 
+async function checkProof(vp, tag) {
+  const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: vp.width < 500 ? 2 : 1 });
+  const p = await ctx.newPage();
+  const errors = [], external = [];
+  p.on("console", (m) => { if (["error", "warning"].includes(m.type())) errors.push(`${m.type()}: ${m.text()}`); });
+  p.on("pageerror", (e) => errors.push("pageerror: " + e.message));
+  p.on("requestfailed", (r) => errors.push("requestfailed: " + r.url() + " (" + (r.failure()?.errorText || "?") + ")"));
+  p.on("request", (r) => { if (!r.url().startsWith(BASE) && !r.url().startsWith("data:")) external.push(r.url()); });
+  await p.goto(`${BASE}proof.html?cb=${Date.now()}`, { waitUntil: "networkidle" });
+  await p.evaluate(() => document.fonts.ready);
+  const timing = JSON.parse(readFileSync(root + "site/timing.json", "utf8"));
+  const MB = 1024 * 1024;
+  const fmt = (n) => (n / MB).toFixed(1) + " MB";
+  const body = await p.textContent("main");
+  ok((await p.title()).includes("timing notes"), `${tag} proof: title names timing notes`);
+  ok(await p.$eval('link[rel="canonical"]', (l) => l.href) === "https://texdiet.vercel.app/proof.html", `${tag} proof: canonical points at texdiet.vercel.app/proof.html`);
+  ok(body.includes(fmt(timing.original_no_shell_escape.pdf_bytes)) && body.includes(fmt(timing.fixed_no_shell_escape.pdf_bytes)), `${tag} proof: shows PDF sizes ${fmt(timing.original_no_shell_escape.pdf_bytes)} and ${fmt(timing.fixed_no_shell_escape.pdf_bytes)}`);
+  ok(body.includes(String(timing.original_no_shell_escape.warm_median_ms)) && body.includes(String(timing.fixed_no_shell_escape.warm_median_ms)), `${tag} proof: shows warm medians ${timing.original_no_shell_escape.warm_median_ms} and ${timing.fixed_no_shell_escape.warm_median_ms}`);
+  ok(body.includes(String(timing.fixed_shell_escape_warm.warm_median_ms)) && body.includes(String(timing.fixed_shell_escape_first.ms)), `${tag} proof: shows cached median ${timing.fixed_shell_escape_warm.warm_median_ms} and first cache pass ${timing.fixed_shell_escape_first.ms}`);
+  ok(body.includes("not a measurement of a hosted editor's 10-second limit"), `${tag} proof: does not claim a hosted editor timeout`);
+  ok(!/overleaf/i.test(await p.content()), `${tag} proof: brand name of the online editor never appears`);
+  const caps = await p.evaluate(() => [...document.querySelectorAll("body *")].filter((e) => e.textContent.trim() && getComputedStyle(e).textTransform === "uppercase").length);
+  ok(caps === 0, `${tag} proof: no all-caps text-transform labels (${caps} found)`);
+  ok(!(await p.textContent("body")).includes("\u00b7"), `${tag} proof: no middle-dot separators`);
+  ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `${tag} proof: no horizontal overflow`);
+  const html = (await p.content()).toLowerCase();
+  ok(deny.length > 0 && deny.every((d) => !html.includes(d)), `${tag} proof: 0 denylist hits in rendered html`);
+  await p.screenshot({ path: `${SHOTS}/${tag}-proof.png`, fullPage: true });
+  ok(errors.length === 0, `${tag} proof: no console errors or failed requests${errors.length ? " -> " + errors.join(" | ") : ""}`);
+  ok(external.length === 0, `${tag} proof: no requests leave the site${external.length ? " -> " + external.join(" ") : ""}`);
+  await ctx.close();
+}
+
 async function checkFixed(p, tag, input, label) {
   const t = `${tag} ${label}`;
   await p.click("#fix");
@@ -119,6 +152,7 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
   ok(await p.$eval('a[href="https://voyager-from-space.github.io"]', (a) => !!a.offsetParent), `${tag}: link back to voyager portfolio visible`);
   ok(!(await p.isVisible("#results")), `${tag}: results panel hidden before any zip`);
   ok(await p.$eval('link[rel="canonical"]', (l) => l.href) === "https://texdiet.vercel.app/" && await p.$eval('meta[property="og:url"]', (m) => m.content) === "https://texdiet.vercel.app/", `${tag}: canonical and og:url point at https://texdiet.vercel.app/`);
+  ok(await p.$$eval('a[href="./proof.html"]', (as) => as.some((a) => !!a.offsetParent)), `${tag}: link to timing notes is visible`);
   const caps = await p.evaluate(() => [...document.querySelectorAll("body *")].filter((e) => e.textContent.trim() && getComputedStyle(e).textTransform === "uppercase").length);
   ok(caps === 0, `${tag}: no all-caps text-transform labels (${caps} found)`);
   ok(!/overleaf/i.test(await p.content()), `${tag}: brand name of the online editor never appears on the page`);
@@ -158,6 +192,11 @@ for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 39
   ok(s.errors.length === 0, `${tag}: no console errors or failed requests${s.errors.length ? " -> " + s.errors.join(" | ") : ""}`);
   ok(s.external.length === 0, `${tag}: no requests leave the site${s.external.length ? " -> " + s.external.join(" ") : ""}`);
   await s.ctx.close();
+}
+
+
+for (const [vp, tag] of [[{ width: 1280, height: 800 }, "desktop"], [{ width: 390, height: 844 }, "mobile"]]) {
+  await checkProof(vp, tag);
 }
 
 {

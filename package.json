@@ -10,7 +10,9 @@
     "serve": "python3 -m http.server 4174 --directory site",
     "fixtures": "python3 scripts/make-fixtures.py",
     "check": "sh scripts/check-identity.sh",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "build-fixed": "node scripts/build-fixed.mjs",
+    "time": "python3 scripts/time-compile.py"
   },
   "devDependencies": {
     "jszip": "^3.10.2",

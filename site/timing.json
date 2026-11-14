@@ -1,0 +1,56 @@
+{
+  "fixture": "proof-thesis",
+  "description": "pdfLaTeX thesis with large NASA figures and 7 un-externalized TikZ pictures. One pdflatex pass, no bibliography.",
+  "engine": "pdfTeX 3.141592653-2.6-1.40.29 (TeX Live 2026)",
+  "flags": "-interaction=nonstopmode -halt-on-error -file-line-error",
+  "machine": {
+    "nproc": 8,
+    "loadavg_at_start": [
+      0.55,
+      0.44,
+      0.38
+    ]
+  },
+  "zips": {
+    "orig_bytes": 26749579,
+    "fixed_bytes": 3260889
+  },
+  "original_no_shell_escape": {
+    "ok": true,
+    "n_warm": 5,
+    "cold_ms": 350.9,
+    "warm_median_ms": 380.4,
+    "warm_min_ms": 375.8,
+    "warm_max_ms": 407.2,
+    "pages": 8,
+    "pdf_bytes": 29574386
+  },
+  "fixed_no_shell_escape": {
+    "ok": true,
+    "n_warm": 5,
+    "cold_ms": 330,
+    "warm_median_ms": 338.4,
+    "warm_min_ms": 336.8,
+    "warm_max_ms": 348.9,
+    "pages": 8,
+    "pdf_bytes": 3336116
+  },
+  "fixed_shell_escape_first": {
+    "ok": true,
+    "ms": 1527.4,
+    "pages": 8,
+    "pdf_bytes": 3340145
+  },
+  "fixed_shell_escape_warm": {
+    "ok": true,
+    "n_warm": 5,
+    "warm_median_ms": 197.1,
+    "warm_min_ms": 193.1,
+    "warm_max_ms": 199.9,
+    "pages": 8,
+    "pdf_bytes": 3340145
+  },
+  "limiter": "Writing the output PDF. An unreported warm run used resource rusage: the original wrote 57840 blocks (about 29.6 MB) with 0.068 s of system time; the fixed zip wrote 6592 blocks (about 3.4 MB) with 0.008 s of system time. Draft mode, which does not write a PDF, took 0.313 s and 0.318 s, so typesetting and TikZ work did not change.",
+  "protocol": "Sides were alternated (original, then fixed) with no shell-escape, in one persistent tree per side. Run 1 is a cold compile. Runs 2 to 6 are warm recompiles; the median and range are of those five. Separately, a fresh extract of the fixed zip was compiled with -shell-escape once to fill tikz-cache (1527.4 ms), then five more times; the 197.1 ms median is of those five.",
+  "tikz_pictures": 7
+}

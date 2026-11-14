@@ -40,7 +40,7 @@ Click **Build fixed zip** after the diagnosis and download `<name>-texdiet.zip`.
 - leaves a `% texdiet:` comment above every edit, flags minted, EPS, SVG and big pgfplots data, and comments out debug tracing.
 - never deletes content. When a figure path changes from `.png` to `.jpg`, the original line is kept in a `% texdiet:` comment. A `TEXDIET-CHANGES.txt` in the zip lists every change with before/after bytes.
 
-Compile speed has not been measured yet. That proof comes next.
+Compile times were measured with pdfTeX 3.141592653-2.6-1.40.29 (TeX Live 2026) on an 8-core build machine. For the public proof thesis (8 pages, 7 TikZ pictures), a warm pdflatex pass without shell-escape went from 380.4 ms to 338.4 ms (median of 5, sides alternated). The gap is the smaller output PDF (28.2 MB to 3.2 MB) being written; a draft-mode run that does not write a PDF was 0.313 s against 0.318 s. After TikZ pictures were cached with shell-escape, later passes were 197.1 ms (first cache pass 1527.4 ms). Both versions compiled in under half a second on this machine. These times are not a measurement of a hosted editor's 10-second limit. The numbers and method are in [timing notes](https://texdiet.vercel.app/proof.html).
 
 ## Develop
 
@@ -49,6 +49,8 @@ npm install                       # playwright, for the verify script only
 python3 scripts/make-fixtures.py  # builds test/fixtures/small-thesis.zip and test/heavy/heavy-thesis.zip
 npm run serve                     # http://127.0.0.1:4174
 npm run verify                    # headless checks, desktop + mobile
+node scripts/build-fixed.mjs in.zip out.zip
+python3 scripts/time-compile.py --orig in.zip --fixed out.zip --out test/timing/results.json
 BASE_URL=https://voyager-from-space.github.io/texdiet/ SHOTS=screenshots/live npm run verify
 ```
 

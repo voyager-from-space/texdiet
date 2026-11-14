@@ -1,6 +1,6 @@
-# texdiet spec (sharpened, slice 1 of 3)
+# texdiet spec (sharpened, slices 1-3)
 1. User: a student or researcher whose LaTeX project times out on a free online editor's 10-second compile limit, who won't install TeX or leave the editor their co-authors use.
 2. The one thing: drop the project .zip in a browser tab and get a ranked list of exactly what makes it slow, with file:line, real byte sizes and pixel sizes measured from the zip, and nothing uploaded anywhere.
 3. Done when (slice 1, Sat 14 Nov): a real heavy project zip (thesis layout built from public-domain NASA images plus TikZ/pgfplots, minted, fontspec and a large .bib) is diagnosed in a headless browser with a ranked findings list whose top items are the giant images and the un-externalized TikZ, each with file:line, and scripts/verify.mjs passes locally and against https://voyager-from-space.github.io/texdiet/.
 4. Done when (slice 2, Sun 15 Nov): one click downloads a fixed zip that is measurably smaller (before/after bytes shown), with images downscaled and slow patterns commented, plus a "what changed" list.
-5. Done when (slice 3, before any speed claim): the original and fixed zips are compiled by a real TeX engine and the before/after compile times are captured in a browser screenshot; no "compiles in under 10s" wording ships before that proof exists.
+5. Done when (slice 3, Sat 14 Nov): a committed script times the original and fixed proof thesis (TikZ included) with native pdflatex, records warm medians, ranges, page counts and exit codes, and a proof page shows those exact numbers plus the limiter (PDF write I/O). No "under 10s" or hosted-editor timeout claim ships unless a measured original run exceeded 10s. Engine: native TeX Live on the box, not a custom BusyTeX+pgf build.

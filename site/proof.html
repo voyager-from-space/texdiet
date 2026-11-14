@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>texdiet timing notes</title>
+<meta name="description" content="Measured pdflatex times and PDF sizes for the texdiet proof thesis. One machine, one fixture, no claim about hosted editors.">
+<link rel="canonical" href="https://texdiet.vercel.app/proof.html">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<header class="wrap top">
+  <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">◐</span> texdiet</a>
+  <a class="home" href="./">Back to the tool</a>
+</header>
+<main class="wrap proof">
+  <section class="intro">
+    <h1>Timing notes</h1>
+    <p class="lede">A compile of the public test thesis on the project's build machine.</p>
+  </section>
+
+  <section class="proof-hero" aria-label="Output PDF size">
+    <p class="proof-kicker">Output PDF, 8 pages both</p>
+    <p class="proof-pair"><span class="num">28.2 MB</span><span class="to">to</span><span class="num after">3.2 MB</span></p>
+  </section>
+
+  <section class="proof-body">
+    <h2>One pdflatex pass</h2>
+    <p>8 cores, load average 0.55 at the start. Warm median of 5 recompiles, sides alternated. The original zip is 25.5 MB. The fixed zip is 3.1 MB.</p>
+
+    <h3>Without shell-escape</h3>
+    <p class="measure"><span class="num">380.4 ms</span><span class="to">to</span><span class="num after">338.4 ms</span></p>
+    <p>Range 375.8 to 407.2 ms before, 336.8 to 348.9 ms after. The gap is the smaller PDF being written. A draft-mode run, which does not write a PDF, took 0.313 s for the original and 0.318 s for the fixed zip.</p>
+
+    <h3>With shell-escape, after 7 TikZ pictures were cached</h3>
+    <p class="measure"><span class="num after">197.1 ms</span></p>
+    <p>Range 193.1 to 199.9 ms, median of 5. The first pass that filled the cache took 1527.4 ms.</p>
+
+    <p class="note">Both versions compiled in under half a second here. These times are not a measurement of a hosted editor's 10-second limit.</p>
+  </section>
+</main>
+<footer class="wrap foot">
+  <p>Numbers come from <a href="./timing.json">timing.json</a>, written by <a href="https://github.com/voyager-from-space/texdiet/blob/main/scripts/time-compile.py">scripts/time-compile.py</a>. Engine: pdfTeX 3.141592653-2.6-1.40.29 (TeX Live 2026). <a href="https://github.com/voyager-from-space/texdiet">Source</a> (MIT).</p>
+</footer>
+</body>
+</html>

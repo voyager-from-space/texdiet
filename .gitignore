@@ -6,3 +6,6 @@ decisions.tsv
 screenshots/
 test/heavy/
 test/out/
+test/timing/
+__pycache__/
+texput.log
