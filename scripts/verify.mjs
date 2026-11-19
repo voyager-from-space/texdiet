@@ -22,7 +22,7 @@ const denyFile = root + ".identity-denylist";
 const deny = existsSync(denyFile) ? readFileSync(denyFile, "utf8").split("\n").map((l) => l.trim().toLowerCase()).filter(Boolean) : [];
 let fails = 0, passes = 0;
 const ok = (cond, msg) => { console.log(`${cond ? "PASS" : "FAIL"}  ${msg}`); cond ? passes++ : fails++; };
-const browser = await chromium.launch();
+const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined, args: process.env.CHROME_PATH ? ["--no-sandbox"] : [] });
 
 // Let lazily loaded fonts finish before a reload, so the reload does not abort them (net::ERR_ABORTED).
 async function settle(p) { await p.evaluate(() => document.fonts.ready); await p.reload({ waitUntil: "networkidle" }); }
