@@ -5,20 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>texdiet: find what makes your LaTeX compile slow</title>
 <meta name="description" content="Drop your LaTeX project zip and get a ranked list of what makes it slow to compile: huge images, uncompressed PDFs, un-externalized TikZ and more. Runs in your browser; nothing is uploaded.">
-<meta property="og:title" content="texdiet: find what makes your LaTeX compile slow">
-<meta property="og:description" content="Drop a LaTeX project zip, get a ranked list of what slows the compile. Runs in your browser.">
-<meta property="og:url" content="https://texdiet.vercel.app/">
-<link rel="canonical" href="https://texdiet.vercel.app/">
 <link rel="icon" href="favicon-32.png" sizes="32x32">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="voyager">
+<meta property="og:title" content="texdiet: find what makes your LaTeX compile slow">
+<meta property="og:description" content="Drop a LaTeX project zip, get a ranked list of what slows the compile and a smaller zip back. Free, in your browser, nothing is uploaded.">
+<meta property="og:url" content="https://texdiet.vercel.app/">
+<meta property="og:image" content="https://texdiet.vercel.app/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="texdiet by voyager: find what slows your LaTeX project down and get a smaller zip back.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@voyagerships">
+<meta name="twitter:title" content="texdiet: find what makes your LaTeX compile slow">
+<meta name="twitter:description" content="Drop a LaTeX project zip, get a ranked list of what slows the compile and a smaller zip back. Free, in your browser, nothing is uploaded.">
+<meta name="twitter:image" content="https://texdiet.vercel.app/og.png">
+<meta name="twitter:image:alt" content="texdiet by voyager: find what slows your LaTeX project down and get a smaller zip back.">
+<meta name="theme-color" content="#070b16">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://texdiet.vercel.app/">
+<link rel="stylesheet" href="voyager.css">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="tool">
+<a class="skip" href="#main">Skip to content</a>
 <div class="sky" aria-hidden="true"></div>
-<header class="wrap top">
-  <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">◐</span> texdiet</a>
-  <a class="home" href="https://voyager-from-space.github.io">More from voyager</a>
+<header class="wrap vg-top">
+  <a class="vg-brand" href="https://voyager-from-space.github.io" aria-label="voyager home"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" stroke-opacity=".5"/><circle cx="16" cy="16" r="5" fill="#ffb547"/><circle cx="16" cy="16" r="1.3" fill="#070b16"/></svg><span>voyager</span></a>
+  <span class="vg-sep" aria-hidden="true">/</span>
+  <a class="vg-tool" href="./" aria-current="page">texdiet</a>
+  <a class="vg-end" href="https://github.com/voyager-from-space/texdiet">Source</a>
 </header>
-<main class="wrap">
+<main id="main" class="wrap">
   <section class="intro">
     <h1>Why does my LaTeX project take so long to compile?</h1>
     <p class="lede">Drop your project's source zip. texdiet reads every file and ranks what is slowing the compile: giant images, uncompressed PDF figures, TikZ redrawn every time, shell-escape packages and more. It runs in this tab. Nothing is uploaded.</p>
@@ -61,8 +80,17 @@
     <p class="note">Sizes and pixel counts are measured from your zip. The impact score is an estimate for ranking, not a measured compile time.</p>
   </section>
 </main>
-<footer class="wrap foot">
-  <p>Runs entirely in your browser. <a href="./proof.html">Timing notes</a>. <a href="https://github.com/voyager-from-space/texdiet">Source</a> (MIT). Built by <a href="https://voyager-from-space.github.io">voyager</a>.</p>
+<footer class="wrap vg-foot">
+  <nav class="vg-route" aria-label="The voyager LaTeX route">
+    <h2>One route for a paper</h2>
+    <ol class="vg-steps">
+    <li class="here" aria-current="step"><span class="vg-name">texdiet</span><span class="vg-what">Slim the project so it compiles faster.</span></li>
+    <li><a href="https://voyager-from-space.github.io/papershed/">papershed</a><span class="vg-what">Clean the zip before you post it.</span></li>
+    <li><a href="https://maketitle.vercel.app/">maketitle</a><span class="vg-what">Open an arXiv paper's LaTeX source and compile it in the tab.</span></li>
+    </ol>
+    <p class="vg-side">Submitting double-blind? <a href="https://voyager-from-space.github.io/blindsanitize/">blindsanitize</a> checks the source, PDF and extra files for anything that points to the authors.</p>
+  </nav>
+  <p class="vg-legal">Runs entirely in your browser. <a href="./proof.html">Timing notes</a>. <a href="https://github.com/voyager-from-space/texdiet">Source</a> (MIT).</p>
 </footer>
 <script src="vendor/jszip.min.js"></script>
 <script type="module" src="app.js"></script>

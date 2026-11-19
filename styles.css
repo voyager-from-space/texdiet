@@ -1,69 +1,4 @@
-/* texdiet. voyager look: deep-space navy, amber + ice accents, calm. */
-@font-face { font-family: "Plex Sans"; src: url(fonts/IBMPlexSans-Regular-Latin1.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0000, U+000D, U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+2044, U+20AC, U+2122, U+2212, U+FB01-FB02; }
-@font-face { font-family: "Plex Sans"; src: url(fonts/IBMPlexSans-Regular-Pi.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0E3F, U+2000-200D, U+2015, U+2028-2029, U+202F, U+2032-2033, U+2070, U+2074-2079, U+2080-2089, U+2113, U+2116, U+2126, U+212E, U+2150-2151, U+2153-215E, U+2190-2199, U+21A9-21AA, U+21B0-21B3, U+21B6-21B7, U+21BA-21BB, U+21C4, U+21C6, U+2202, U+2206, U+220F, U+2211, U+2215, U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-2265, U+25CA, U+2713, U+274C, U+2B0E-2B11, U+ECE0, U+EFCC, U+FEFF, U+FFFD; }
-@font-face { font-family: "Plex Sans"; src: url(fonts/IBMPlexSans-SemiBold-Latin1.woff2) format("woff2"); font-weight: 600; font-style: normal; font-display: swap; unicode-range: U+0000, U+000D, U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+2044, U+20AC, U+2122, U+2212, U+FB01-FB02; }
-@font-face { font-family: "Plex Sans"; src: url(fonts/IBMPlexSans-SemiBold-Pi.woff2) format("woff2"); font-weight: 600; font-style: normal; font-display: swap; unicode-range: U+0E3F, U+2000-200D, U+2015, U+2028-2029, U+202F, U+2032-2033, U+2070, U+2074-2079, U+2080-2089, U+2113, U+2116, U+2126, U+212E, U+2150-2151, U+2153-215E, U+2190-2199, U+21A9-21AA, U+21B0-21B3, U+21B6-21B7, U+21BA-21BB, U+21C4, U+21C6, U+2202, U+2206, U+220F, U+2211, U+2215, U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-2265, U+25CA, U+2713, U+274C, U+2B0E-2B11, U+ECE0, U+EFCC, U+FEFF, U+FFFD; }
-@font-face { font-family: "Plex Mono"; src: url(fonts/IBMPlexMono-Regular-Latin1.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0000, U+000D, U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+2044, U+20AC, U+2122, U+2212, U+FB01-FB02; }
-@font-face { font-family: "Plex Mono"; src: url(fonts/IBMPlexMono-Regular-Pi.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0E3F, U+2000-200D, U+2015, U+2028-2029, U+202F, U+2032-2033, U+2070, U+2074-2079, U+2080-2089, U+2113, U+2116, U+2126, U+212E, U+2150-2151, U+2153-215E, U+2190-2199, U+21A9-21AA, U+21B0-21B3, U+21B6-21B7, U+21BA-21BB, U+21C4, U+21C6, U+2202, U+2206, U+220F, U+2211, U+2215, U+221A, U+221E, U+222B, U+2248, U+2260, U+2264-2265, U+25CA, U+2713, U+274C, U+2B0E-2B11, U+ECE0, U+EFCC, U+FEFF, U+FFFD; }
-
-:root {
-  --bg: #070b16; --panel: #0c1322; --line: #1b2640;
-  --ink: #e8edf6; --muted: #9ba7bf; --amber: #ffb547; --ice: #9fd3ee;
-  --sans: "Plex Sans", system-ui, sans-serif; --mono: "Plex Mono", ui-monospace, monospace;
-  --t-1: .85rem; --t0: 1.0625rem; --t1: 1.328rem; --t2: 1.66rem; --t3: 2.075rem;
-}
-*, *::before, *::after { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%; }
-body { margin: 0; font: 400 var(--t0)/1.65 var(--sans); min-height: 100vh; display: flex; flex-direction: column; }
-main { flex: 1; }
-h1, h2, h3, p, ol, dl, dd { margin: 0; }
-ol { padding: 0; list-style: none; }
-a { color: var(--ice); text-decoration: underline; text-decoration-color: rgb(159 211 238 / .4); text-underline-offset: .2em; }
-a:hover { text-decoration-color: currentColor; }
-:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 3px; }
-::selection { background: var(--amber); color: var(--bg); }
-
-.wrap { width: min(100% - 2.5rem, 52rem); margin-inline: auto; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-
-.sky { position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(1px 1px at 20px 30px, rgb(232 237 246 / .45), transparent 60%),
-    radial-gradient(1px 1px at 140px 90px, rgb(232 237 246 / .3), transparent 60%),
-    radial-gradient(1.5px 1.5px at 90px 160px, rgb(159 211 238 / .35), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 80% 0%, rgb(30 48 92 / .3), transparent 70%);
-  background-size: 230px 230px, 310px 310px, 270px 270px, 100% 100%; }
-
-.top { display: flex; align-items: center; justify-content: space-between; padding-block: 1.5rem; }
-.brand { display: inline-flex; align-items: center; gap: .5rem; color: var(--ink); text-decoration: none; font-weight: 600; }
-.brand-mark { color: var(--amber); }
-.home { color: var(--muted); font-size: var(--t-1); text-decoration: none; }
-.home:hover { color: var(--ink); }
-
-.intro { display: grid; gap: 1.25rem; padding-block: clamp(2rem, 7vw, 4.5rem) 2.5rem; }
-h1 { font-size: clamp(var(--t2), 1rem + 3vw, var(--t3)); line-height: 1.15; font-weight: 600; letter-spacing: -.02em; text-wrap: balance; max-width: 40rem; }
-.lede { color: var(--muted); max-width: 40rem; }
-
-.drop-area { display: grid; gap: 1rem; padding-bottom: 3.5rem; }
-.drop { display: grid; gap: .4rem; place-items: center; text-align: center; padding: 3rem 1.5rem; border: 1.5px dashed #33456b; border-radius: 16px; background: rgb(12 19 34 / .6); cursor: pointer; transition: border-color .2s, background .2s; }
-.drop:hover, .drop.over { border-color: var(--ice); background: var(--panel); }
-.drop-title { font-size: var(--t1); font-weight: 600; }
-.drop-sub { color: var(--muted); font-size: var(--t-1); max-width: 28rem; }
-.alt { color: var(--muted); font-size: var(--t-1); text-align: center; }
-.linkish { background: none; border: 0; padding: 0; font: inherit; color: var(--ice); text-decoration: underline; text-decoration-color: rgb(159 211 238 / .4); text-underline-offset: .2em; cursor: pointer; }
-.status { min-height: 1.4em; text-align: center; font: 400 var(--t-1)/1.4 var(--mono); color: var(--muted); }
-
-.results { border-top: 1px solid var(--line); padding-block: 3rem 4rem; display: grid; gap: 2rem; }
-.res-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem 2rem; }
-.res-head h2 { font-size: var(--t2); line-height: 1.2; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
-.btn { padding: .7rem 1.2rem; border-radius: 999px; border: 0; background: var(--amber); color: var(--bg); font: 600 var(--t-1)/1 var(--sans); cursor: pointer; }
-
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; }
-.stats div { padding: 1rem 1.1rem; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
-.stats dt { font-size: var(--t-1); color: var(--muted); }
-.stats dd { font-size: var(--t1); font-weight: 600; overflow-wrap: anywhere; }
-
+/* texdiet: only what is specific to this tool. Tokens, header, footer, drop zone and buttons are in voyager.css. */
 .findings { display: grid; gap: 1rem; }
 .finding { display: grid; gap: .45rem; padding: 1.25rem 1.5rem; border: 1px solid var(--line); border-left: 3px solid var(--line); border-radius: 14px; background: var(--panel); }
 .finding.high { border-left-color: var(--amber); }
@@ -78,12 +13,6 @@ h1 { font-size: clamp(var(--t2), 1rem + 3vw, var(--t3)); line-height: 1.15; font
 .finding h3 { font-size: var(--t0); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
 .measured { font: 400 var(--t-1)/1.5 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
 .fix { color: var(--muted); font-size: var(--t-1); }
-.where { font: 400 var(--t-1)/1.5 var(--mono); color: var(--ice); opacity: .85; overflow-wrap: anywhere; }
-.note { color: var(--muted); font-size: var(--t-1); }
-.note code { font: 400 var(--t-1)/1 var(--mono); color: var(--ink); }
-.btn:disabled { opacity: .5; cursor: progress; }
-a.btn { text-decoration: none; display: inline-block; }
-
 .fixed { display: grid; gap: 1.5rem; padding: 2rem 0 1rem; border-top: 1px solid var(--line); }
 .bytes { width: 100%; border-collapse: collapse; font-size: var(--t-1); }
 .bytes th, .bytes td { text-align: right; padding: .65rem .75rem; border-bottom: 1px solid var(--line); }
@@ -98,10 +27,6 @@ a.btn { text-decoration: none; display: inline-block; }
 .c-file { font-weight: 600; font-size: var(--t-1); overflow-wrap: anywhere; }
 .c-bytes { font: 400 var(--t-1)/1.5 var(--mono); color: var(--ice); }
 .c-note { color: var(--muted); font-size: var(--t-1); overflow-wrap: anywhere; }
-
-.foot { padding-block: 2rem 3rem; border-top: 1px solid var(--line); color: var(--muted); font-size: var(--t-1); }
-
-
 .proof { padding-bottom: 2rem; }
 .proof-hero { padding-bottom: 2.5rem; }
 .proof-kicker { color: var(--muted); font-size: var(--t-1); }
@@ -115,4 +40,3 @@ a.btn { text-decoration: none; display: inline-block; }
 .proof-table-wrap { overflow-x: auto; padding-bottom: 2rem; }
 .proof-table { min-width: 36rem; }
 .proof-table th[scope="row"] { max-width: 14rem; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
